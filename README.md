@@ -1,2 +1,55 @@
-# market-data-aggregator
-Async backend service that aggregates crypto prices, caches responses with Redis, and delivers price alerts via RabbitMQ.
+# Async Market Data Aggregator
+Учебный backend-проект, реализующий сервис агрегации финансовых данных.
+
+Сервис асинхронно получает курсы криптовалют и валют из публичных API, кэширует их для быстрой отдачи пользователям и предоставляет REST API для получения актуальных цен.
+
+### Текущий статус:
+Проект находится в активной разработке. Функциональность добавляется поэтапно:
+
+- ❌ базовый асинхронный API;
+- ❌ кэширование;
+- ❌ rate limiting;
+- ❌ база данных;
+- ❌ очередь сообщений;
+- ❌ docker инфраструктура.
+
+### Планируемая функциональность
+
+- получение цен активов через REST API
+- кэширование цен в Redis
+- ограничение частоты запросов (Rate Limiter)
+- подписка на ценовые алерты
+- обработка событий через очередь сообщений
+- запуск всех сервисов через Docker Compose
+
+### Технологический стек
+
+**Backend**
+
+- Python
+- FastAPI
+- HTTPX
+- Pydantic
+  
+**Хранение данных**
+
+- PostgreSQL
+- Redis
+  
+**Messaging**
+
+- RabbitMQ
+  
+**ORM и миграции**
+
+- SQLAlchemy 2.0
+- Alembic
+  
+**Инфраструктура**
+
+- Docker
+- Docker Compose
+  
+**Тестирование**
+
+- Pytest
