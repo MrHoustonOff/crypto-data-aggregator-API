@@ -1,0 +1,10 @@
+[project]
+name = "crypto-data-aggregator-api"
+version = "0.0.0"
+description = "High-performance async service for cryptocurrency price aggregation with Redis caching and RabbitMQ-based alerts."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.135.1",
+    "uvicorn>=0.42.0",
+]
