@@ -6,7 +6,13 @@ class BinanceAdapter(BaseAdapter):
 
     @property
     def mapping(self) -> dict[str, str]:
-        return {"BTC": "BTCUSDT", "ETH": "ETHUSDT"}
+        return {
+            "BTC": "BTCUSDT",
+            "ETH": "ETHUSDT",
+            "DOGE": "DOGEUSDT",
+            "SOL": "SOLUSDT",
+            "BNB": "BNBUSDT"
+        }
 
     def prepare_request_url(self, tickers: list[str]) -> str:
         mapping_gen = (

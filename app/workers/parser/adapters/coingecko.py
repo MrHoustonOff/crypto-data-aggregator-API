@@ -4,7 +4,13 @@ class CoinGeckoAdapter(BaseAdapter):
     
     @property
     def mapping(self) -> dict[str, str]:
-        return {"BTC": "bitcoin", "ETH": "ethereum"}
+        return {
+            "BTC": "bitcoin",
+            "ETH": "ethereum",
+            "DOGE": "dogecoin",
+            "SOL": "solana",
+            "BNB": "binancecoin"
+        }
 
     def prepare_request_url(self, tickers: list[str]) -> str:
         mapping_gen = (res for ticker in tickers if (res := self.mapping.get(ticker)) is not None)
