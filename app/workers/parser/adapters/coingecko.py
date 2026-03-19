@@ -1,4 +1,4 @@
-from base import BaseAdapter
+from .base import BaseAdapter
 
 class CoinGeckoAdapter(BaseAdapter):
     
@@ -17,5 +17,5 @@ class CoinGeckoAdapter(BaseAdapter):
     def normalize_response(self, response: dict) -> dict:
         normalize_output = dict()
         for response_key, response_value in response.items():
-            normalize_output[self.reverse_mapping[response_key]] = response_value["usd"]
+            normalize_output[self.reverse_mapping[response_key]] = float(response_value["usd"])
         return normalize_output

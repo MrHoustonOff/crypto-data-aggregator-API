@@ -1,4 +1,4 @@
-from base import BaseAdapter
+from .base import BaseAdapter
 import json
 
 
@@ -12,7 +12,7 @@ class BinanceAdapter(BaseAdapter):
         mapping_gen = (
             res for ticker in tickers if (res := self.mapping.get(ticker)) is not None
         )
-        tickers_param = json.dumps(list(mapping_gen))
+        tickers_param = json.dumps(list(mapping_gen), separators=(',', ':'))
 
         if tickers_param != "[]":
             return (
@@ -27,6 +27,6 @@ class BinanceAdapter(BaseAdapter):
             response_ticker = response_dict.get("symbol")
             response_value = response_dict.get("price")
 
-            normalize_output[self.reverse_mapping[response_ticker]] = response_value
+            normalize_output[self.reverse_mapping[response_ticker]] = float(response_value)
 
         return normalize_output
