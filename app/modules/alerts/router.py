@@ -30,8 +30,16 @@ async def create_alert(
     alert_in: AlertCreate,
     user: CurrentUserDep,
     service: AlertServiceDep,
-):
-    return await service.create_alert(user_id=user.id, alert_in=alert_in)
+):  
+    new_alert = await service.create_alert(user_id=user.id, alert_in=alert_in)
+    
+    if not new_alert:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You already have an active alert with exactly the same parameters."
+        )
+        
+    return new_alert
 
 
 @alerts_router.get(

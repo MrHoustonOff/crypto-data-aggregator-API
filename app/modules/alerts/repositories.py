@@ -1,6 +1,7 @@
 from uuid import UUID
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 from app.modules.users.models import Alert
 
 
@@ -15,7 +16,7 @@ class AlertRepository:
         target_price: float,
         condition: str,
         webhook_url: str,
-    ) -> Alert:
+    ) -> Alert | None:
         """Создает новый алерт с привязкой к конкретному пользователю."""
         new_alert = Alert(
             user_id=user_id,
@@ -25,9 +26,14 @@ class AlertRepository:
             webhook_url=webhook_url,
         )
         self.session.add(new_alert)
-        await self.session.commit()
-        await self.session.refresh(new_alert)
-        return new_alert
+        
+        try:
+            await self.session.commit()
+            await self.session.refresh(new_alert)
+            return new_alert
+        except IntegrityError:
+            await self.session.rollback()
+            return None
 
     async def get_user_alerts(self, user_id: UUID) -> list[Alert]:
         """Достает все алерты конкретного пользователя."""
