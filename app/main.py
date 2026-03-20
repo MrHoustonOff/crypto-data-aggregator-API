@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-
+from fastapi import APIRouter
+from app.modules.rates.router import rates_router
 
 app = FastAPI(
     title="Crypto Data Aggregator",
@@ -8,6 +9,12 @@ app = FastAPI(
         "An aggregator of cryptocurrency and fiat exchange rates with a price notification system.\n\n"
     )
 )
+
+
+v1_router = APIRouter(prefix="/api/v1")
+v1_router.include_router(rates_router)
+
+app.include_router(v1_router)
 
 
 @app.get(
