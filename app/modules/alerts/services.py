@@ -1,7 +1,7 @@
 from uuid import UUID
 from app.modules.alerts.repositories import AlertRepository
 from app.modules.alerts.schemas import AlertCreate
-from app.modules.users.models import Alert
+from app.modules.alerts.models import Alert
 
 
 class AlertService:

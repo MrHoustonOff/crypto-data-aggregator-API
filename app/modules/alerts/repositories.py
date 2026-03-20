@@ -2,7 +2,7 @@ from uuid import UUID
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from app.modules.users.models import Alert
+from app.modules.alerts.models import Alert
 
 
 class AlertRepository:
