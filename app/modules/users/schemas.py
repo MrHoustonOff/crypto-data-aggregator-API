@@ -7,7 +7,7 @@ class UserCreate(BaseModel):
     """Схема для регистрации нового пользователя (то, что принимаем от клиента)"""
 
     email: EmailStr
-    api_key: str = Field(min_leangth=8, max_leangth=150)
+    api_key: str = Field(min_length=8, max_length=150)
 
 
 class UserResponse(BaseModel):
