@@ -7,6 +7,7 @@ from app.modules.users.models import User
 from app.modules.users.schemas import UserCreate, UserResponse
 from app.modules.users.repositories import UserRepository
 from app.modules.users.services import UserService
+from app.modules.users.dependencies import CurrentUserDep
 
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -36,3 +37,12 @@ async def register_user(user_in: UserCreate, service: UserServiceDep):
         )
 
     return new_user
+
+@users_router.get(
+    "/me",
+    summary="Get current user info",
+    response_model=UserResponse
+)
+async def get_me(user: CurrentUserDep):
+    """Возвращает информацию о текущем авторизованном пользователе"""
+    return user
