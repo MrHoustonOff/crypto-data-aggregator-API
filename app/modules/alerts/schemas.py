@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import Literal
-from pydantic import BaseModel, HttpUrl, Field, ConfigDict
+from pydantic import BaseModel, HttpUrl, Field, ConfigDict, field_validator
 from app.core.config import settings
 
 
