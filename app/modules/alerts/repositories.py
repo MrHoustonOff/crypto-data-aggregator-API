@@ -1,0 +1,46 @@
+from uuid import UUID
+from sqlalchemy import select, delete
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.modules.users.models import Alert
+
+
+class AlertRepository:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def create_alert(
+        self,
+        user_id: UUID,
+        ticker: str,
+        target_price: float,
+        condition: str,
+        webhook_url: str,
+    ) -> Alert:
+        """Создает новый алерт с привязкой к конкретному пользователю."""
+        new_alert = Alert(
+            user_id=user_id,
+            ticker=ticker.upper(),
+            target_price=target_price,
+            condition=condition,
+            webhook_url=webhook_url,
+        )
+        self.session.add(new_alert)
+        await self.session.commit()
+        await self.session.refresh(new_alert)
+        return new_alert
+
+    async def get_user_alerts(self, user_id: UUID) -> list[Alert]:
+        """Достает все алерты конкретного пользователя."""
+        query = select(Alert).where(Alert.user_id == user_id)
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
+
+    async def delete_alert(self, alert_id: UUID, user_id: UUID) -> bool:
+        """
+        Возвращает True, если алерт удален, и False, если такого алерта нет (или он чужой).
+        """
+        query = delete(Alert).where(Alert.id == alert_id, Alert.user_id == user_id)
+        result = await self.session.execute(query)
+        await self.session.commit()
+
+        return result.rowcount > 0
