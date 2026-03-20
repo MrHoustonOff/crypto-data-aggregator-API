@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import String, func, DateTime, CheckConstraint
 from sqlalchemy import ForeignKey, Float, Boolean, text, Numeric, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import SmallInteger
+from sqlalchemy import SmallInteger, Index
 
 from app.database.base import Base
 
@@ -60,6 +60,15 @@ class Alert(Base):
 
     dispatch_logs: Mapped[list["DispatchLog"]] = relationship(
         back_populates="alert", cascade="all, delete-orphan"
+    )
+    
+    __table_args__ = (
+        Index(
+            "ix_unique_active_alert", 
+            "user_id", "ticker", "target_price", "condition", 
+            unique=True,
+            postgresql_where=text("is_active = true")
+        ),
     )
 
 
