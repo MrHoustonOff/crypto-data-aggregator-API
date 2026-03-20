@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Literal
 from pydantic import BaseModel, HttpUrl, Field, ConfigDict
+from app.core.config import settings
 
 
 class AlertCreate(BaseModel):
@@ -9,6 +10,16 @@ class AlertCreate(BaseModel):
     target_price: float = Field(..., gt=0)
     condition: Literal["gt", "lt"] = Field(...)
     webhook_url: HttpUrl = Field(...)
+
+    @field_validator("ticker")
+    @classmethod
+    def validate_ticker(cls, v: str) -> str:
+        v_upper = v.upper()
+        if v_upper not in settings.SUPPORTED_TICKERS:
+            raise ValueError(
+                f"Yo, we don't support '{v_upper}'! Supported coins: {', '.join(settings.SUPPORTED_TICKERS)}"
+            )
+        return v_upper
 
 
 class AlertResponse(BaseModel):
