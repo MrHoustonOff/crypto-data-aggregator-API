@@ -1,39 +1,38 @@
-import hashlib
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
 from typing import Annotated
 
 from app.database.session import get_db
 from app.modules.users.models import User
 from app.modules.users.schemas import UserCreate, UserResponse
+from app.modules.users.repositories import UserRepository
+from app.modules.users.services import UserService
 
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
-DBDep = Annotated[AsyncSession, Depends(get_db)]
+
+def get_user_service(session: AsyncSession = Depends(get_db)):
+    repository = UserRepository(session)
+    return UserService(repository)
+
+
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+
 
 @users_router.post(
     "/register",
     summary="User registration",
     response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
-async def register_user(user_in: UserCreate, session: DBDep):
+async def register_user(user_in: UserCreate, service: UserServiceDep):
     """Регистрация нового пользователя"""
-    
-    hashed_key = hashlib.sha256(user_in.api_key.encode()).hexdigest()
-    new_user = User(email=user_in.email, api_key_hash=hashed_key)
-    
-    session.add(new_user)
-    
-    try:
-        await session.commit()
-        await session.refresh(new_user)
-    except IntegrityError:
-        await session.rollback()
+
+    new_user = await service.register(user_in=user_in)
+    if new_user is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with this email already exists"
+            detail="User with this email already exists",
         )
-        
+
     return new_user
