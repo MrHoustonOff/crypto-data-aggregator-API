@@ -57,3 +57,34 @@ class Alert(Base):
     is_active: Mapped[bool] = mapped_column(server_default=text("true"), index=True)
 
     user: Mapped["User"] = relationship(back_populates="alerts")
+
+    dispatch_logs: Mapped[list["DispatchLog"]] = relationship(
+        back_populates="alert", cascade="all, delete-orphan"
+    )
+
+
+class DispatchLog(Base):
+    __tablename__ = "dispatch_log"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    alert_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("alerts.id", ondelete="CASCADE"), index=True
+    )
+
+    attempt: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    status: Mapped[str] = mapped_column(
+        String(10),
+        CheckConstraint("status IN ('success', 'failed', 'pending')"),
+        nullable=False,
+    )
+
+    response_code: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    error_msg: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    dispatched_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    alert: Mapped["Alert"] = relationship(back_populates="dispatch_logs")
