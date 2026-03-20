@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi import APIRouter
 from app.modules.rates.router import rates_router
+from app.modules.users.router import users_router
+
 
 app = FastAPI(
     title="Crypto Data Aggregator",
@@ -13,6 +15,8 @@ app = FastAPI(
 
 v1_router = APIRouter(prefix="/api/v1")
 v1_router.include_router(rates_router)
+v1_router.include_router(users_router)
+
 
 app.include_router(v1_router)
 
