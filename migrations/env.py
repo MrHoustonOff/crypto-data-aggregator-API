@@ -1,6 +1,5 @@
 from app.core.config import settings
 from app.database.base import Base
-from app.modules.users.models import User, Alert
 
 import asyncio
 from logging.config import fileConfig
