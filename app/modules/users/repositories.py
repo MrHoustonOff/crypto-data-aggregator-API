@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from app.modules.users.models import User
@@ -21,3 +22,9 @@ class UserRepository:
         except IntegrityError:
             await self.session.rollback()
             return None
+
+    async def get_user_by_api_key(self, api_key_hash: str) -> User | None:
+        """Ищет пользователя по хешу API-ключа"""
+        query = select(User).where(User.api_key_hash == api_key_hash)
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
