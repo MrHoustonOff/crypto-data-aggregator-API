@@ -17,7 +17,7 @@ class AlertCreate(BaseModel):
         v_upper = v.upper()
         if v_upper not in settings.SUPPORTED_TICKERS:
             raise ValueError(
-                f"Yo, we don't support '{v_upper}'! Supported coins: {', '.join(settings.SUPPORTED_TICKERS)}"
+                f"We don't support '{v_upper}'! Supported coins: {', '.join(settings.SUPPORTED_TICKERS)}"
             )
         return v_upper
 
