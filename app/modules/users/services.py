@@ -1,4 +1,5 @@
 import hashlib
+import secrets
 from app.modules.users.repositories import UserRepository
 from app.modules.users.schemas import UserCreate
 from app.modules.users.models import User
@@ -12,13 +13,23 @@ class UserService:
         """Внутренний метод для хеширования"""
         return hashlib.sha256(api_key.encode()).hexdigest()
 
-    async def register(self, user_in: UserCreate) -> User | None:
+    async def register(self, user_in: UserCreate) -> tuple[User, str] | None:
         """
         Бизнес-логика регистрации.
-        Хеширует пароль и передает данные на слой БД.
+        Генерирует надежный API-ключ, хеширует его и сохраняет в БД.
+        Возвращает кортеж: (User, raw_api_key).
         """
-        hashed_key = self._hash_api_key(user_in.api_key)
+        # Генерируем уникальный ключ на 32 байта (url-safe)
+        raw_api_key = f"sk_live_{secrets.token_urlsafe(32)}"
+        
+        # Хешируем его для базы
+        hashed_key = self._hash_api_key(raw_api_key)
 
-        return await self.repository.create_user(
+        new_user = await self.repository.create_user(
             email=user_in.email, api_key_hash=hashed_key
         )
+        
+        if not new_user:
+            return None
+            
+        return new_user, raw_api_key
