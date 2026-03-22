@@ -1,4 +1,5 @@
 import hashlib
+import uuid
 from typing import Annotated
 from fastapi import Depends, HTTPException, Security, status
 from fastapi.security import APIKeyHeader
@@ -19,6 +20,12 @@ async def get_current_user(
     """
     Проверяет API-ключ. Сначала ищет в Redis (кэш), если нет - идет в Postgres.
     """
+    if not api_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing API Key in headers"
+        )
+
     api_key_hash = hashlib.sha256(api_key.encode()).hexdigest()
     cache_key = f"auth:{api_key_hash}"
 
