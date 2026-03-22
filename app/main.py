@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.modules.rates.router import rates_router
 from app.modules.users.router import users_router
 from app.modules.alerts.router import alerts_router
+from app.modules.rates.router import rates_router
 
 
 
@@ -19,6 +20,7 @@ v1_router = APIRouter(prefix="/api/v1")
 v1_router.include_router(rates_router)
 v1_router.include_router(users_router)
 v1_router.include_router(alerts_router)
+v1_router.include_router(rates_router)
 
 app.include_router(v1_router)
 
