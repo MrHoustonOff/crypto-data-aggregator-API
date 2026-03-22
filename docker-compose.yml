@@ -1,32 +1,98 @@
+version: '3.8'
+
 services:
-  db:
+  postgres:
     image: postgres:15-alpine
     container_name: crypto_postgres
-    restart: always
     environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: "crypto_db"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: crypto_db
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
   redis:
     image: redis:7-alpine
     container_name: crypto_redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: always
+
   rabbitmq:
-    image: rabbitmq:3.13-management-alpine
+    image: rabbitmq:3.12-management-alpine
     container_name: crypto_rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: always
-    
-volumes:
-  postgres_data:
+
+  api:
+    image: crypto_aggregator:latest
+    container_name: crypto_api
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      - VIRTUAL_ENV=/app/.venv
+      - PATH=/app/.venv/bin:/usr/local/bin:/usr/bin:/bin
+      - PYTHONPATH=/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+
+  parser:
+    image: crypto_aggregator:latest
+    container_name: crypto_parser
+    command: ["/app/.venv/bin/python", "-m", "app.workers.parser.main"]
+    env_file: .env
+    environment:
+      - VIRTUAL_ENV=/app/.venv
+      - PATH=/app/.venv/bin:/usr/local/bin:/usr/bin:/bin
+      - PYTHONPATH=/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+
+  dispatcher:
+    image: crypto_aggregator:latest
+    container_name: crypto_dispatcher
+    command: ["/app/.venv/bin/python", "-m", "app.workers.sender.main"]
+    env_file: .env
+    environment:
+      - VIRTUAL_ENV=/app/.venv
+      - PATH=/app/.venv/bin:/usr/local/bin:/usr/bin:/bin
+      - PYTHONPATH=/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: always
