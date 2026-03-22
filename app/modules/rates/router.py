@@ -4,6 +4,7 @@ from redis.asyncio import Redis
 
 from app.database.redis import get_redis
 from app.modules.users.dependencies import CurrentUserDep
+from app.core.rate_limit import RateLimiter
 
 rates_router = APIRouter(prefix="/rates", tags=["Rates"])
 
@@ -12,6 +13,7 @@ rates_router = APIRouter(prefix="/rates", tags=["Rates"])
     "/",
     summary="Get current cryptocurrency rates",
     description="Returns the latest prices fetched from exchanges. Data is cached in Redis for lightning-fast responses.",
+    dependencies=[Depends(RateLimiter(requests=30, window=60))]
 )
 async def get_current_rates(user: CurrentUserDep, redis: Redis = Depends(get_redis)):
     """

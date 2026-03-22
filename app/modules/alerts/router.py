@@ -8,6 +8,7 @@ from app.modules.users.dependencies import CurrentUserDep
 from app.modules.alerts.schemas import AlertCreate, AlertResponse
 from app.modules.alerts.repositories import AlertRepository
 from app.modules.alerts.services import AlertService
+from app.core.rate_limit import RateLimiter
 
 alerts_router = APIRouter(prefix="/alerts", tags=["Alerts"])
 
@@ -25,6 +26,7 @@ AlertServiceDep = Annotated[AlertService, Depends(get_alert_service)]
     summary="Create a new alert",
     response_model=AlertResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(RateLimiter(requests=6, window=60))]
 )
 async def create_alert(
     alert_in: AlertCreate,
@@ -45,7 +47,8 @@ async def create_alert(
 @alerts_router.get(
     "/",
     summary="Get all user`s alerts",
-    response_model=list[AlertResponse],  # Возвращаем СПИСОК алертов
+    response_model=list[AlertResponse],
+    dependencies=[Depends(RateLimiter(requests=20, window=60))]
 )
 async def get_alerts(user: CurrentUserDep, service: AlertServiceDep):
     return await service.get_user_alerts(user_id=user.id)
@@ -55,6 +58,7 @@ async def get_alerts(user: CurrentUserDep, service: AlertServiceDep):
     "/{alert_id}",
     summary="Delete an alert",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(RateLimiter(requests=20, window=60))]
 )
 async def delete_alert(alert_id: UUID, user: CurrentUserDep, service: AlertServiceDep):
     is_deleted = await service.delete_alert(alert_id=alert_id, user_id=user.id)
