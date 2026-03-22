@@ -22,7 +22,7 @@ async def update_cache_with_prices(prices: dict[str, float]):
          logger.error(f"Failed to cache prices in Redis: {e}")
 
 async def main():
-    logger.info("Starting DUMB Parser Worker...")
+    logger.info("Starting Parser Worker...")
 
     parser = ParserService(
         adapters=[BinanceAdapter(), CoinGeckoAdapter()],
