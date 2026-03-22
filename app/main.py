@@ -6,6 +6,7 @@ from app.modules.users.router import users_router
 from app.modules.alerts.router import alerts_router
 from app.modules.rates.router import rates_router
 from app.database.redis import redis_client
+import logging
 
 
 logger = logging.getLogger("api.lifespan")
