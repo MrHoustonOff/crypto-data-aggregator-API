@@ -112,6 +112,7 @@ async def main():
             prices = await parser.fetch_all_prices()
 
             if prices:
+                logger.info(f"Result: {prices}")
                 await update_cache_with_prices(prices)
 
                 await process_active_alerts(prices)
