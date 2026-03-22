@@ -8,6 +8,7 @@ from app.modules.users.schemas import UserCreate, UserResponse
 from app.modules.users.repositories import UserRepository
 from app.modules.users.services import UserService
 from app.modules.users.dependencies import CurrentUserDep
+from app.core.security import RateLimiter
 
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -25,6 +26,7 @@ UserServiceDep = Annotated[UserService, Depends(get_user_service)]
     summary="User registration",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(RateLimiter(requests=2, window=10))]
 )
 async def register_user(user_in: UserCreate, service: UserServiceDep):
     """Регистрация нового пользователя"""
@@ -41,7 +43,8 @@ async def register_user(user_in: UserCreate, service: UserServiceDep):
 @users_router.get(
     "/me",
     summary="Get current user info",
-    response_model=UserResponse
+    response_model=UserResponse,
+    dependencies=[Depends(RateLimiter(requests=5, window=10))]
 )
 async def get_me(user: CurrentUserDep):
     """Возвращает информацию о текущем авторизованном пользователе"""
