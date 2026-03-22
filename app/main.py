@@ -1,6 +1,10 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi import APIRouter
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.modules.rates.router import rates_router
 from app.modules.users.router import users_router
 from app.modules.alerts.router import alerts_router
@@ -31,6 +35,28 @@ app = FastAPI(
     ),
     lifespan=lifespan
 )
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": "HTTPException",
+            "detail": str(exc.detail),
+            "code": exc.status_code
+        }
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error": "ValidationError",
+            "detail": exc.errors(),
+            "code": 422
+        }
+    )
 
 
 v1_router = APIRouter(prefix="/api/v1")
