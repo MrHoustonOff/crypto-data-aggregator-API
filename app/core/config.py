@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_NAME: str
     REDIS_URL: str = "redis://localhost:6379/0"
+    RABBITMQ_URL: str = "amqp://guest:guest@localhost:5672/"
     
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     
