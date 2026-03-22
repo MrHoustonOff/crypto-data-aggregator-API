@@ -8,7 +8,7 @@ from app.modules.users.schemas import UserCreate, UserResponse
 from app.modules.users.repositories import UserRepository
 from app.modules.users.services import UserService
 from app.modules.users.dependencies import CurrentUserDep
-from app.core.security import RateLimiter
+from app.core.rate_limit import RateLimiter
 
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
