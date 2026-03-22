@@ -25,7 +25,7 @@ class RabbitMQClient:
     async def close(self):
         if self.connection and not self.connection.is_closed:
             await self.connection.close()
-            logger.info("🧹 RabbitMQ connection closed.")
+            logger.info("RabbitMQ connection closed.")
 
     async def publish_webhook_task(self, payload: dict):
         if not self.channel:
