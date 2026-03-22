@@ -1,10 +1,25 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi import APIRouter
 from app.modules.rates.router import rates_router
 from app.modules.users.router import users_router
 from app.modules.alerts.router import alerts_router
 from app.modules.rates.router import rates_router
+from app.database.redis import redis_client
 
+
+logger = logging.getLogger("api.lifespan")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("API Server is starting...")
+    yield
+    logger.info("API Server is shutting down...")
+    try:
+        await redis_client.aclose()
+        logger.info("Redis connection closed gracefully.")
+    except Exception as e:
+        logger.error(f"Error closing Redis connection: {e}")
 
 
 app = FastAPI(
@@ -12,7 +27,8 @@ app = FastAPI(
     version="0.0.1",
     description=(
         "An aggregator of cryptocurrency and fiat exchange rates with a price notification system.\n\n"
-    )
+    ),
+    lifespan=lifespan
 )
 
 
