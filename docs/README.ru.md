@@ -10,7 +10,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
 
 ---
-
+*Also available in English: [README](../README.md)*
 ## Содержание
 
 - [Обзор](#обзор)
